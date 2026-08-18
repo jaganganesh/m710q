@@ -1,0 +1,31 @@
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+      - FTLCONF_webserver_api_password=${PASSWORD}
+      - FTLCONF_dns_listeningMode=all
+      # Performance & Cache Optimizations
+      - FTLCONF_dns_cacheSize=10000
+      - FTLCONF_dns_dnssec=true
+      - FTLCONF_rateLimit_count=1000
+      - FTLCONF_rateLimit_interval=60
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8080:80/tcp"
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    volumes:
+      - ./data:/etc/pihole
+    healthcheck:
+      test: ["CMD-SHELL", "dig +short +norecurse @127.0.0.1 pi.hole || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: always

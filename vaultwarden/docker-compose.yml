@@ -1,0 +1,31 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+      - DOMAIN=https://192.168.31.5
+      - ROCKET_PORT=8000
+      - ROCKET_TLS={certs="./data/certs/vaultwarden.crt",key="./data/certs/vaultwarden.key"}
+      - WEBSOCKET_ENABLED=true
+    ports:
+      - "8000:8000/tcp"
+    volumes:
+      - ./data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -k -f https://localhost:8000/alive || curl -f http://localhost:8000/alive || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: always

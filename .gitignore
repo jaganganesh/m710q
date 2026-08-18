@@ -1,0 +1,13 @@
+# Ignore data directories and sensitive files
+data/
+**/data/
+.env
+**/.env
+*.env
+
+# Ignore recovery and backup files
+*.recovery
+*.bak
+*.swp
+*~
+.DS_Store

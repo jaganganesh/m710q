@@ -1,0 +1,35 @@
+services:
+  joplin-server:
+    image: joplin/server:latest
+    container_name: joplin
+    user: "1000:1000"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+      - APP_PORT=22300
+      - APP_BASE_URL=${APP_BASE_URL}
+      - DB_CLIENT=sqlite3
+      - SQLITE_DATABASE=/home/joplin/data/db.sqlite
+      - PM2_HOME=/tmp/.pm2
+      - LOG_DIR=/tmp/logs
+      - MAX_TIME_DRIFT=0
+    ports:
+      - "22300:22300/tcp"
+    volumes:
+      - ./data:/home/joplin/data
+      - ./data/logs:/home/joplin/packages/server/logs
+      - ./data/temp:/home/joplin/packages/server/temp
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "const http = require('http'); const u = new URL(process.env.APP_BASE_URL || 'http://localhost:22300'); const req = http.request({ host: '127.0.0.1', port: 22300, path: '/api/ping', headers: { Host: u.host } }, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: always
